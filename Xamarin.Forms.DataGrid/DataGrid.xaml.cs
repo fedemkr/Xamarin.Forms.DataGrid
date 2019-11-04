@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
@@ -309,14 +310,26 @@ namespace Xamarin.Forms.DataGrid
 			{
 				_internalItems = value;
 
-				if (IsSortable && SortedColumnIndex != null)
-					SortItems(SortedColumnIndex);
-				else
-					_listView.ItemsSource = _internalItems;
+                if (IsSortable && SortedColumnIndex != null)
+                    SortItems(SortedColumnIndex);
+                else
+                {
+                    InternalItemsCollection.Clear();
+                    foreach (var item in _internalItems)
+                        InternalItemsCollection.Add(item);
+                }
+
+                _listView.IsVisible = false;
+                _listView.IsVisible = true;
+
+                //_listview.ItemsSource = _internalItems;
 			}
 		}
 
-		public ColumnCollection Columns
+        public ObservableCollection<Object> InternalItemsCollection { get; set; } = new ObservableCollection<object>();
+
+
+        public ColumnCollection Columns
 		{
 			get { return (ColumnCollection)GetValue(ColumnsProperty); }
 			set { SetValue(ColumnsProperty, value); }
@@ -473,8 +486,9 @@ namespace Xamarin.Forms.DataGrid
 				Refreshing?.Invoke(this, e);
 			};
 
+            _listView.SetBinding(ItemsView<Cell>.ItemsSourceProperty, new Binding(nameof(InternalItemsCollection), source: this));
 			_listView.SetBinding(ListView.RowHeightProperty, new Binding("RowHeight", source: this));
-			Grid.SetRow(_listView, 1);
+            Grid.SetRow(_listView, 1);
 			Children.Add(_listView);
 		}
 		#endregion
@@ -492,7 +506,7 @@ namespace Xamarin.Forms.DataGrid
 			SetColumnsBindingContext();
 		}
 
-		private void Reload()
+		public void Reload()
 		{
 			InternalItems = new List<object>(_internalItems);
 		}
