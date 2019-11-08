@@ -184,7 +184,14 @@ namespace Xamarin.Forms.DataGrid
 			BindableProperty.Create(nameof(HeaderBordersVisible), typeof(bool), typeof(DataGrid), true,
 				propertyChanged: (b, o, n) => (b as DataGrid)._headerView.BackgroundColor = (bool)n ? (b as DataGrid).BorderColor : (b as DataGrid).HeaderBackground);
 
-		public static readonly BindableProperty SortedColumnIndexProperty =
+
+        public static readonly BindableProperty HeaderMarginProperty =
+            BindableProperty.Create(nameof(HeaderMargin), typeof(Thickness), typeof(DataGrid), new Thickness(0),
+                propertyChanged: (b, o, n) => {
+                    (b as DataGrid)._headerView.Margin = (Thickness)n;
+                });
+        
+        public static readonly BindableProperty SortedColumnIndexProperty =
 			BindableProperty.Create(nameof(SortedColumnIndex), typeof(SortData), typeof(DataGrid), null, BindingMode.TwoWay,
 				validateValue: (b, v) => {
 					var self = b as DataGrid;
@@ -405,9 +412,15 @@ namespace Xamarin.Forms.DataGrid
 		{
 			get { return (bool)GetValue(HeaderBordersVisibleProperty); }
 			set { SetValue(HeaderBordersVisibleProperty, value); }
-		}
+        }
 
-		public SortData SortedColumnIndex
+        public Thickness HeaderMargin
+        {
+            get { return (Thickness)GetValue(HeaderMarginProperty); }
+            set { SetValue(HeaderMarginProperty, value); }
+        }
+
+        public SortData SortedColumnIndex
 		{
 			get { return (SortData)GetValue(SortedColumnIndexProperty); }
 			set { SetValue(SortedColumnIndexProperty, value); }
